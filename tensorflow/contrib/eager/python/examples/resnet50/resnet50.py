@@ -43,10 +43,9 @@ class _IdentityBlock(tf.keras.Model):
       'channels_last').
   """
 
-  def __init__(self, kernel_size, filters, stage, block, data_format):
+  def __init__(self, filters, stage, block, data_format):
     super(_IdentityBlock, self).__init__(name='')
     filters1, filters2, filters3 = filters
-
     conv_name_base = 'res' + str(stage) + block + '_branch'
     bn_name_base = 'bn' + str(stage) + block + '_branch'
     bn_axis = 1 if data_format == 'channels_first' else 3
@@ -58,7 +57,7 @@ class _IdentityBlock(tf.keras.Model):
 
     self.conv2b = layers.Conv2D(
         filters2,
-        kernel_size,
+        3,
         padding='same',
         data_format=data_format,
         name=conv_name_base + '2b')
@@ -102,7 +101,6 @@ class _ConvBlock(tf.keras.Model):
   """
 
   def __init__(self,
-               kernel_size,
                filters,
                stage,
                block,
@@ -125,7 +123,7 @@ class _ConvBlock(tf.keras.Model):
 
     self.conv2b = layers.Conv2D(
         filters2,
-        kernel_size,
+        3,
         padding='same',
         name=conv_name_base + '2b',
         data_format=data_format)
@@ -210,7 +208,6 @@ class ResNet50(tf.keras.Model):
 
     def conv_block(filters, stage, block, strides=(2, 2)):
       return _ConvBlock(
-          3,
           filters,
           stage=stage,
           block=block,
@@ -219,7 +216,7 @@ class ResNet50(tf.keras.Model):
 
     def id_block(filters, stage, block):
       return _IdentityBlock(
-          3, filters, stage=stage, block=block, data_format=data_format)
+           filters, stage=stage, block=block, data_format=data_format)
 
     self.conv1 = layers.Conv2D(
         64, (7, 7),
